@@ -88,6 +88,21 @@ fn fx2tab_fastq_three_columns() {
     assert_eq!(cols[2], "IIIIIIII");
 }
 
+// Byte-exact differential against seqkit v2.9.0 `fx2tab test.fq`.
+// fx2tab.upstream.expected was captured directly from that binary; no
+// normalization. For FASTQ seqkit emits three columns (name, seq, qual)
+// ending in newline, which is exactly our layout. (The FASTA path diverges
+// — seqkit appends an empty trailing qual column — so the golden covers the
+// FASTQ path only.)
+#[test]
+fn fx2tab_fastq_matches_seqkit() {
+    let fq = read_golden("test.fq");
+    let mut out = Vec::new();
+    fx2tab(fq.as_slice(), &mut out).unwrap();
+    let expected = read_golden("fx2tab.upstream.expected");
+    assert_eq!(out, expected, "fx2tab output diverged from seqkit golden");
+}
+
 // ---- tab2fx ----
 
 #[test]
